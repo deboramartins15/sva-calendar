@@ -13,7 +13,6 @@ export default function Day({ day, rowIdx }) {
 
   useEffect(() => {
     const fetchData = () => {
-      //console.log(filteredEvents)
       const events = filteredEvents.filter(
         (evt) => dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY")
       );
