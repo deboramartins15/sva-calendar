@@ -27,6 +27,11 @@ export class createEvents1642801419123 implements MigrationInterface {
             isNullable: false,
           },
           {
+            name: "day",
+            type: "timestamp",
+            isNullable: false
+          },
+          {
             name: "created_at",
             type: "timestamp",
             default: "now()",

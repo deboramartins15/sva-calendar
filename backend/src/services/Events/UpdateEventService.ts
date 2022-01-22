@@ -6,10 +6,11 @@ type EventUpdateRequest = {
   title: string;
   description?: string;
   label: string;
+  day: Date;
 };
 
 export class UpdateEventService {
-  async execute({ id, title, description, label }: EventUpdateRequest): Promise<Event | Error> {
+  async execute({ id, title, description, label, day }: EventUpdateRequest): Promise<Event | Error> {
     const repo = getRepository(Event);
 
     const event = await repo.findOne(id);
@@ -19,6 +20,7 @@ export class UpdateEventService {
     event.title = title ? title : event.title;
     event.description = description ? description : event.description;
     event.label = label ? label : event.label;
+    event.day = day ? day : event.day;
 
     await repo.save(event);
 

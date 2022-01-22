@@ -1,24 +1,7 @@
-import React, { useState, useEffect, useReducer, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import GlobalContext from "./GlobalContext";
 import dayjs from "dayjs";
-
-function savedEventsReducer(state, { type, payload }) {
-  switch (type) {
-    case "push":
-      return [...state, payload];
-    case "update":
-      return state.map((evt) => (evt.id === payload.id ? payload : evt));
-    case "delete":
-      return state.filter((evt) => evt.id !== payload.id);
-    default:
-      throw new Error();
-  }
-}
-function initEvents() {
-  const storageEvents = localStorage.getItem("savedEvents");
-  const parsedEvents = storageEvents ? JSON.parse(storageEvents) : [];
-  return parsedEvents;
-}
+import api from "../services/apiSVACalendar";
 
 export default function ContextWrapper(props) {
   const [monthIndex, setMonthIndex] = useState(dayjs().month());
@@ -27,28 +10,33 @@ export default function ContextWrapper(props) {
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [labels, setLabels] = useState([]);
-  const [savedEvents, dispatchCalEvent] = useReducer(
-    savedEventsReducer,
-    [],
-    initEvents
-  );
+  const [events, setEvents] = useState([]);
+
+  async function getEvents() {
+    try {
+      const result = await api.get("/events");
+      if (result) setEvents(result.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    getEvents();
+  }, []);
 
   const filteredEvents = useMemo(() => {
-    return savedEvents.filter((evt) =>
+    return events.filter((evt) =>
       labels
         .filter((lbl) => lbl.checked)
         .map((lbl) => lbl.label)
         .includes(evt.label)
     );
-  }, [savedEvents, labels]);
-
-  useEffect(() => {
-    localStorage.setItem("savedEvents", JSON.stringify(savedEvents));
-  }, [savedEvents]);
+  }, [events, labels]);
 
   useEffect(() => {
     setLabels((prevLabels) => {
-      return [...new Set(savedEvents.map((evt) => evt.label))].map((label) => {
+      return [...new Set(events.map((evt) => evt.label))].map((label) => {
         const currentLabel = prevLabels.find((lbl) => lbl.label === label);
         return {
           label,
@@ -56,7 +44,7 @@ export default function ContextWrapper(props) {
         };
       });
     });
-  }, [savedEvents]);
+  }, [events]);
 
   useEffect(() => {
     if (smallCalendarMonth !== null) {
@@ -85,14 +73,14 @@ export default function ContextWrapper(props) {
         setDaySelected,
         showEventModal,
         setShowEventModal,
-        dispatchCalEvent,
         selectedEvent,
         setSelectedEvent,
-        savedEvents,
         setLabels,
         labels,
         updateLabel,
         filteredEvents,
+        events,
+        getEvents,
       }}
     >
       {props.children}

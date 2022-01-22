@@ -3,11 +3,11 @@ import { CreateEventService } from "../../services/Events/CreateEventService";
 
 export class CreateEventController {
   async handle(request: Request, response: Response) {
-    const { title, description, label } = request.body;
+    const { title, description, label, day } = request.body;
 
     const service = new CreateEventService();
 
-    const result = await service.execute({ title, description, label });
+    const result = await service.execute({ title, description, label, day });
     if (result instanceof Error)
       return response.status(400).json(result.message);
 

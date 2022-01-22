@@ -15,6 +15,9 @@ export class Event {
   @Column()
   label: string;
 
+  @Column()
+  day: Date;
+
   @CreateDateColumn()
   created_at: Date;
 

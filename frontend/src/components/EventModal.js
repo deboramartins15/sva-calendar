@@ -1,10 +1,11 @@
 import React, { useContext, useState } from "react";
 import GlobalContext from "../context/GlobalContext";
+import api from "../services/apiSVACalendar";
 
 const labelsClasses = ["indigo", "gray", "green", "blue", "red", "purple"];
 
 export default function EventModal() {
-  const { setShowEventModal, daySelected, dispatchCalEvent, selectedEvent } =
+  const { setShowEventModal, daySelected, getEvents, selectedEvent } =
     useContext(GlobalContext);
 
   const [title, setTitle] = useState(selectedEvent ? selectedEvent.title : "");
@@ -17,19 +18,21 @@ export default function EventModal() {
       : labelsClasses[0]
   );
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     const calendarEvent = {
       title,
       description,
       label: selectedLabel,
-      day: daySelected.valueOf(),
+      day: daySelected,
       id: selectedEvent ? selectedEvent.id : Date.now(),
     };
     if (selectedEvent) {
-      dispatchCalEvent({ type: "update", payload: calendarEvent });
+      await api.put(`/events/${calendarEvent.id}`, calendarEvent);
+      getEvents();
     } else {
-      dispatchCalEvent({ type: "push", payload: calendarEvent });
+      await api.post(`/events`, calendarEvent);
+      getEvents();
     }
 
     setShowEventModal(false);
@@ -44,11 +47,9 @@ export default function EventModal() {
           <div>
             {selectedEvent && (
               <span
-                onClick={() => {
-                  dispatchCalEvent({
-                    type: "delete",
-                    payload: selectedEvent,
-                  });
+                onClick={async () => {
+                  await api.delete(`/events/${selectedEvent.id}`);
+                  getEvents();
                   setShowEventModal(false);
                 }}
                 className="material-icons-outlined text-gray-400 cursor-pointer"
