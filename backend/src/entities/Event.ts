@@ -18,6 +18,12 @@ export class Event {
   @Column()
   day: Date;
 
+  @Column('time', {name: 'time'})
+  time: Date;
+
+  @Column()
+  city: string;
+
   @CreateDateColumn()
   created_at: Date;
 

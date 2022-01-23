@@ -29,7 +29,16 @@ export class createEvents1642801419123 implements MigrationInterface {
           {
             name: "day",
             type: "timestamp",
-            isNullable: false
+            isNullable: false,
+          },
+          {
+            name: "time",
+            type: "time",
+            isNullable: false,
+          },
+          {
+            name: "city",
+            type: "varchar"
           },
           {
             name: "created_at",

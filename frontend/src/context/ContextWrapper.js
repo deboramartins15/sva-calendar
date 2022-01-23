@@ -18,6 +18,7 @@ export default function ContextWrapper(props) {
       if (result) setEvents(result.data);
     } catch (error) {
       console.log(error);
+      window.alert(error?.response ? error.response.data : error.message);
     }
   }
 

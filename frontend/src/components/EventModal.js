@@ -14,28 +14,39 @@ export default function EventModal() {
   );
   const [selectedLabel, setSelectedLabel] = useState(
     selectedEvent
-      ? labelsClasses.find((lbl) => lbl === selectedEvent.label)
+      ? labelsClasses.find(
+          (lbl) => lbl.toLowerCase() === selectedEvent.label.toLowerCase()
+        )
       : labelsClasses[0]
   );
+  const [time, setTime] = useState(selectedEvent ? selectedEvent.time : "");
+  const [city, setCity] = useState(selectedEvent ? selectedEvent.city : "");
 
   async function handleSubmit(e) {
-    e.preventDefault();
-    const calendarEvent = {
-      title,
-      description,
-      label: selectedLabel,
-      day: daySelected,
-      id: selectedEvent ? selectedEvent.id : Date.now(),
-    };
-    if (selectedEvent) {
-      await api.put(`/events/${calendarEvent.id}`, calendarEvent);
-      getEvents();
-    } else {
-      await api.post(`/events`, calendarEvent);
-      getEvents();
-    }
+    try {
+      e.preventDefault();
+      const calendarEvent = {
+        title,
+        description,
+        label: selectedLabel,
+        day: daySelected,
+        id: selectedEvent ? selectedEvent.id : Date.now(),
+        time,
+        city,
+      };
+      if (selectedEvent) {
+        await api.put(`/events/${calendarEvent.id}`, calendarEvent);
+        getEvents();
+      } else {
+        await api.post(`/events`, calendarEvent);
+        getEvents();
+      }
 
-    setShowEventModal(false);
+      setShowEventModal(false);
+    } catch (error) {
+      console.log(error);
+      window.alert(error?.response ? error.response.data : error.message);
+    }
   }
   return (
     <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center">
@@ -48,9 +59,16 @@ export default function EventModal() {
             {selectedEvent && (
               <span
                 onClick={async () => {
-                  await api.delete(`/events/${selectedEvent.id}`);
-                  getEvents();
-                  setShowEventModal(false);
+                  try {
+                    await api.delete(`/events/${selectedEvent.id}`);
+                    getEvents();
+                    setShowEventModal(false);
+                  } catch (error) {
+                    console.log(error);
+                    window.alert(
+                      error?.response ? error.response.data : error.message
+                    );
+                  }
                 }}
                 className="material-icons-outlined text-gray-400 cursor-pointer"
               >
@@ -77,9 +95,21 @@ export default function EventModal() {
               onChange={(e) => setTitle(e.target.value)}
             />
             <span className="material-icons-outlined text-gray-400">
-              schedule
+              <span className="material-icons-outlined">date_range</span>
             </span>
             <p>{daySelected.format("dddd, MMMM DD")}</p>
+            <span className="material-icons-outlined text-gray-400">
+              <span className="material-icons-outlined">schedule</span>
+            </span>
+            <input
+              type="time"
+              name="time"
+              placeholder="Add a time"
+              value={time}
+              required
+              className="pt-3 border-0 text-gray-600 pb-2 w-full border-b-2 border-gray-200 focus:outline-none focus:ring-0 focus:border-blue-500"
+              onChange={(e) => setTime(e.target.value)}
+            />
             <span className="material-icons-outlined text-gray-400">
               segment
             </span>
@@ -91,6 +121,19 @@ export default function EventModal() {
               required
               className="pt-3 border-0 text-gray-600 pb-2 w-full border-b-2 border-gray-200 focus:outline-none focus:ring-0 focus:border-blue-500"
               onChange={(e) => setDescription(e.target.value)}
+            />
+            <span className="material-icons-outlined text-gray-400">
+              <span className="material-icons-outlined">
+                <span className="material-icons-outlined">apartment</span>
+              </span>
+            </span>
+            <input
+              type="text"
+              name="city"
+              placeholder="Add a city"
+              value={city}              
+              className="pt-3 border-0 text-gray-600 pb-2 w-full border-b-2 border-gray-200 focus:outline-none focus:ring-0 focus:border-blue-500"
+              onChange={(e) => setCity(e.target.value)}
             />
             <span className="material-icons-outlined text-gray-400">
               bookmark_border

@@ -6,6 +6,8 @@ type EventRequest = {
   description?: string;
   label: string;
   day: Date;
+  time: Date;
+  city?: string;
 };
 
 export class CreateEventService {
@@ -13,10 +15,12 @@ export class CreateEventService {
     title,
     description,
     label,
-    day
+    day,
+    time,
+    city
   }: EventRequest): Promise<Event | Error> {
     const repo = getRepository(Event);
-    const event = repo.create({ title, description, label, day });
+    const event = repo.create({ title, description, label, day, time, city });
 
     if (await repo.findOne({ title })) return new Error("Event already exists");
 
